@@ -721,6 +721,7 @@ iperf_parse_arguments(struct iperf_test *test, int argc, char **argv)
         {"nstreams", required_argument, NULL, OPT_NUMSTREAMS},
         {"xbind", required_argument, NULL, 'X'},
 #endif
+        {"udpoptions", no_argument, NULL, OPT_UDPOPT},
 	{"pidfile", required_argument, NULL, 'I'},
 	{"logfile", required_argument, NULL, OPT_LOGFILE},
 	{"forceflush", no_argument, NULL, OPT_FORCEFLUSH},
@@ -1059,6 +1060,9 @@ iperf_parse_arguments(struct iperf_test *test, int argc, char **argv)
 		break;
 	    case OPT_UDP_COUNTERS_64BIT:
 		test->udp_counters_64bit = 1;
+		break;
+	    case OPT_UDPOPT:
+		test->udp_options = 1;
 		break;
 	    case OPT_NO_FQ_SOCKET_PACING:
 #if defined(HAVE_SO_MAX_PACING_RATE)

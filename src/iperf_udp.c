@@ -333,6 +333,35 @@ iperf_udp_buffercheck(struct iperf_test *test, int s)
 }
 
 /*
+ * Do UDP Options
+ */
+int
+iperf_udp_enableoptions(struct iperf_test *test, int s)
+{
+#define UDP_OPT             8   /* use udp options */
+#define UDP_OPT_MSS         9   /* get opt rtt estimate */
+#define UDP_OPT_ECHO        10  /* respond to echo requests estimate */
+#define UDP_OPT_PROBE       11  /* perform plpmtud probing */
+
+	uint8_t optval = 1;
+
+	printf("Enabling UDP Options \n");
+	if ((setsockopt(s, IPPROTO_UDP, UDP_OPT, &optval, sizeof(int)) != 0)) {
+		perror("set UDP_OPT");
+	}
+
+	if ((setsockopt(s, IPPROTO_UDP, UDP_OPT_ECHO, &optval, sizeof(int)) != 0)) {
+		perror("set UDP_OPT_ECHO");
+	}
+
+	if ((setsockopt(s, IPPROTO_UDP, UDP_OPT_PROBE, &optval, sizeof(int)) != 0)) {
+		perror("set UDP_OPT_PROBE");
+	}
+	return (0);
+}
+
+
+/*
  * iperf_udp_accept
  *
  * Accepts a new UDP "connection"
@@ -366,6 +395,10 @@ iperf_udp_accept(struct iperf_test *test)
     if (connect(s, (struct sockaddr *) &sa_peer, len) < 0) {
         i_errno = IESTREAMACCEPT;
         return -1;
+    }
+
+    if (test->udp_options) {
+        iperf_udp_enableoptions(test, s);
     }
 
     /* Check and set socket buffer sizes */
@@ -478,6 +511,10 @@ iperf_udp_connect(struct iperf_test *test)
     if ((s = netdial(test->settings->domain, Pudp, test->bind_address, test->bind_port, test->server_hostname, test->server_port, -1)) < 0) {
         i_errno = IESTREAMCONNECT;
         return -1;
+    }
+
+    if (test->udp_options) {
+        iperf_udp_enableoptions(test, s);
     }
 
     /* Check and set socket buffer sizes */
